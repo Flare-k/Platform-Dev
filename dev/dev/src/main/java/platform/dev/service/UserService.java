@@ -38,9 +38,6 @@ public class UserService {
         String confirmPassword = Optional.ofNullable(signUpRequest.getConfirmPassword()).orElseThrow(EmptyValueExistException::new);
         String name = Optional.ofNullable(signUpRequest.getName()).orElseThrow(EmptyValueExistException::new);
         String address = Optional.ofNullable(signUpRequest.getAddress()).orElseThrow(EmptyValueExistException::new);
-
-        System.out.println("email = " + email);
-        System.out.println("name = " + name);
         
         boolean alreadyExist = userRepository.existsByEmail(email);
 

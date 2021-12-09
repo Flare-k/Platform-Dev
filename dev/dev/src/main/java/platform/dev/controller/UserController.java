@@ -30,8 +30,6 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
-        System.out.println("signUpRequest.getName() = " + signUpRequest.getName());
-        System.out.println("signUpRequest.getEmail() = " + signUpRequest.getEmail());
         userService.signUp(signUpRequest);
 
         BasicResponse response = new BasicResponse(HttpStatus.OK, Controller.SIGN_UP_SUCCESS_MESSAGE);
