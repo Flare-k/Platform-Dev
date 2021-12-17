@@ -1,2 +1,4 @@
-package platform.dev.model;public class Tech {
+package platform.dev.model;
+
+public class Tech {
 }

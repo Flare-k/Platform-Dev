@@ -1,2 +1,4 @@
-package platform.dev.model;public class Reads {
+package platform.dev.model;
+
+public class Reads {
 }

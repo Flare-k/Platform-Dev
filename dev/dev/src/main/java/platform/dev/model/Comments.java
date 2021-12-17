@@ -1,2 +1,4 @@
-package platform.dev.model;public class Comments {
+package platform.dev.model;
+
+public class Comments {
 }

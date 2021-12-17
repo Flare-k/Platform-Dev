@@ -1,2 +1,4 @@
-package platform.dev.model;public class Likes {
+package platform.dev.model;
+
+public class Likes {
 }
