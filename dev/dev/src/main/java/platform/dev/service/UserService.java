@@ -8,10 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import platform.dev.exception.EmptyValueExistException;
-import platform.dev.exception.User.LoginFailException;
-import platform.dev.exception.User.PasswordNotMatchException;
-import platform.dev.exception.User.UserAlreadyExistException;
-import platform.dev.exception.User.UserNotExistException;
+import platform.dev.exception.User.*;
 import platform.dev.model.CustomUserDetails;
 import platform.dev.model.User;
 import platform.dev.model.request.User.LoginRequest;
@@ -40,10 +37,15 @@ public class UserService {
         String nickname = Optional.ofNullable(signUpRequest.getNickname()).orElseThrow(EmptyValueExistException::new);
         String address = Optional.ofNullable(signUpRequest.getAddress()).orElseThrow(EmptyValueExistException::new);
         
-        boolean alreadyExist = userRepository.existsByEmail(email);
+        boolean alreadyExistEmail = userRepository.existsByEmail(email);
+        boolean alreadyExistNickname = userRepository.existsByNickname(nickname);
 
-        if(alreadyExist){
+        if(alreadyExistEmail){
             throw new UserAlreadyExistException();
+        }
+
+        if(alreadyExistNickname){
+            throw new NickNameAlreadyExistException();
         }
 
         if(!password.equals(confirmPassword)){
@@ -52,13 +54,12 @@ public class UserService {
 
         String encodedPassword = passwordEncoder.encode(password);
 
-        User newUser = new User(
-                email,
-                name,
-                nickname,
-                encodedPassword,
-                address
-        );
+        User newUser = User.builder()
+                .email(email)
+                .name(name)
+                .nickname(nickname)
+                .password(encodedPassword)
+                .address(address).build();
 
         System.out.println("newUser = " + newUser);
 

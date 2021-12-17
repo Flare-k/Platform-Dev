@@ -1,13 +1,15 @@
 package platform.dev.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.util.List;
 
@@ -26,13 +28,11 @@ public class User {
 
     private String name;
 
-    @Size(min=2, max=10)
     @NotBlank
-    @Column(nullable = false, unique = true)
+    @NotNull
+    @Column(length = 15, nullable = false, unique = true)
     private String nickname;
 
-    @Size(min=5, max=20)
-    @NotBlank
     @Column(nullable = false)
     private String password;
 
@@ -42,6 +42,7 @@ public class User {
     @JsonIgnoreProperties({"user"})
     private List<Post> postList;
 
+    @Builder
     public User(String email, String name, String nickname, String password, String address) {
         this.email = email;
         this.name = name;
