@@ -5,10 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import platform.dev.constant.ExceptionMessage;
-import platform.dev.exception.User.LoginFailException;
-import platform.dev.exception.User.PasswordNotMatchException;
-import platform.dev.exception.User.UserAlreadyExistException;
-import platform.dev.exception.User.UserNotExistException;
+import platform.dev.exception.User.*;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -51,6 +48,20 @@ public class ApiExceptionHandler {
 
         ApiException apiException = new ApiException(
                 ExceptionMessage.USER_ALREADY_EXIST_MESSAGE,
+                httpStatus,
+                ZonedDateTime.now(ZoneId.of("Z"))
+        );
+
+        return new ResponseEntity<>(apiException, httpStatus);
+    }
+
+    @ExceptionHandler(value = {NickNameAlreadyExistException.class})
+    public ResponseEntity<Object> handleNickNameAlreadyExistException(NickNameAlreadyExistException e){
+
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        ApiException apiException = new ApiException(
+                ExceptionMessage.NICKNAME_ALREADY_EXIST_MESSAGE,
                 httpStatus,
                 ZonedDateTime.now(ZoneId.of("Z"))
         );

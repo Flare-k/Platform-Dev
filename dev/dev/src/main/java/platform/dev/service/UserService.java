@@ -37,6 +37,7 @@ public class UserService {
         String password = Optional.ofNullable(signUpRequest.getPassword()).orElseThrow(EmptyValueExistException::new);
         String confirmPassword = Optional.ofNullable(signUpRequest.getConfirmPassword()).orElseThrow(EmptyValueExistException::new);
         String name = Optional.ofNullable(signUpRequest.getName()).orElseThrow(EmptyValueExistException::new);
+        String nickname = Optional.ofNullable(signUpRequest.getNickname()).orElseThrow(EmptyValueExistException::new);
         String address = Optional.ofNullable(signUpRequest.getAddress()).orElseThrow(EmptyValueExistException::new);
         
         boolean alreadyExist = userRepository.existsByEmail(email);
@@ -54,6 +55,7 @@ public class UserService {
         User newUser = new User(
                 email,
                 name,
+                nickname,
                 encodedPassword,
                 address
         );
@@ -116,6 +118,7 @@ public class UserService {
                 user.get().getUserId(),
                 user.get().getEmail(),
                 user.get().getName(),
+                user.get().getNickname(),
                 user.get().getAddress()
         );
 

@@ -20,17 +20,20 @@ public class User {
     private Long userId;
     private String email;
     private String name;
+    private String nickname;
     private String password;
     private String address;
 
     public User(
             String email,
             String name,
+            String nickname,
             String password,
             String address
     ) {
         this.email = email;
         this.name = name;
+        this.nickname = nickname;
         this.password = password;
         this.address = address;
     }

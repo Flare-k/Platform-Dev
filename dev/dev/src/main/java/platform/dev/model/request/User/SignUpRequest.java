@@ -12,6 +12,7 @@ import lombok.Setter;
 public class SignUpRequest {
     private String email;
     private String name;
+    private String nickname;
     private String password;
     private String confirmPassword;
     private String address;
