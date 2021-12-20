@@ -11,6 +11,7 @@ import platform.dev.model.request.User.SignUpRequest;
 import platform.dev.model.response.BasicResponse;
 import platform.dev.model.response.TokenContainingResponse;
 import platform.dev.model.response.User.MeResponse;
+import platform.dev.model.response.User.OtherResponse;
 import platform.dev.model.response.User.UserInfo;
 import platform.dev.service.UserService;
 
@@ -31,8 +32,8 @@ public class UserController {
     @PostMapping("/signup")
     public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
         userService.signUp(signUpRequest);
-
         BasicResponse response = new BasicResponse(HttpStatus.OK, Controller.SIGN_UP_SUCCESS_MESSAGE);
+
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -40,6 +41,15 @@ public class UserController {
     public ResponseEntity<MeResponse> me(@RequestHeader(value = Util.AUTHORIZATION) String token){
         UserInfo user = userService.me(token);
         MeResponse response = new MeResponse(HttpStatus.OK, Controller.LOG_IN_SUCCESS_MESSAGE, user);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/{nickname}")
+    public ResponseEntity<OtherResponse> otherUser(@PathVariable("nickname") String nickname) {
+        System.out.println("nickname = " + nickname);
+        UserInfo user = userService.otherUser(nickname);
+        OtherResponse response = new OtherResponse(HttpStatus.OK, Controller.FIND_USER_SUCCESS_MESSAGE, user);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

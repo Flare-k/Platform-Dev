@@ -107,21 +107,37 @@ public class UserService {
             throw new UserNotExistException();
         }
 
-        UserInfo userInfo = null;
-
         Optional<User> user = userRepository.findByEmail(email);
 
         if(user.isEmpty()){
             throw new UserNotExistException();
         }
 
-        userInfo = new UserInfo(
-                user.get().getUserId(),
-                user.get().getEmail(),
-                user.get().getName(),
-                user.get().getNickname(),
-                user.get().getAddress()
-        );
+        UserInfo userInfo = UserInfo.builder()
+                .userId(user.get().getUserId())
+                .email(user.get().getEmail())
+                .name(user.get().getName())
+                .nickname(user.get().getNickname())
+                .address(user.get().getAddress())
+                .build();
+
+        return userInfo;
+    }
+
+    public UserInfo otherUser(String nickname) {
+        Optional<User> user = userRepository.findByNickname(nickname);
+
+        if (user.isEmpty()) {
+            throw new UserNotExistException();
+        }
+
+        UserInfo userInfo = UserInfo.builder()
+                .userId(user.get().getUserId())
+                .email(user.get().getEmail())
+                .name(user.get().getName())
+                .nickname(user.get().getNickname())
+                .address(user.get().getAddress())
+                .build();
 
         return userInfo;
     }
