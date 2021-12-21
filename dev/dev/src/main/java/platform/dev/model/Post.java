@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import platform.dev.model.response.user.UserInfo;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -56,4 +57,7 @@ public class Post {
     public void updateLikesState(Boolean likeState) {
         this.likeState = likeState;
     }
+
+    @Transient
+    private UserInfo userInfo;
 }
