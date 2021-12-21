@@ -6,13 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import platform.dev.constant.Controller;
 import platform.dev.constant.Util;
-import platform.dev.model.request.User.LoginRequest;
-import platform.dev.model.request.User.SignUpRequest;
+import platform.dev.model.request.user.LoginRequest;
+import platform.dev.model.request.user.SignUpRequest;
 import platform.dev.model.response.BasicResponse;
 import platform.dev.model.response.TokenContainingResponse;
-import platform.dev.model.response.User.MeResponse;
-import platform.dev.model.response.User.OtherResponse;
-import platform.dev.model.response.User.UserInfo;
+import platform.dev.model.response.user.MeResponse;
+import platform.dev.model.response.user.OtherResponse;
+import platform.dev.model.response.user.UserInfo;
 import platform.dev.service.UserService;
 
 @RestController

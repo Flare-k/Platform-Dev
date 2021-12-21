@@ -1,4 +1,4 @@
 package platform.dev.model;
 
-public class Reads {
+public class View {
 }

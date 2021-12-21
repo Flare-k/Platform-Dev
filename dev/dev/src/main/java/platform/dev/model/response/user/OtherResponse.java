@@ -1,4 +1,4 @@
-package platform.dev.model.response.User;
+package platform.dev.model.response.user;
 
 import lombok.*;
 import org.springframework.http.HttpStatus;

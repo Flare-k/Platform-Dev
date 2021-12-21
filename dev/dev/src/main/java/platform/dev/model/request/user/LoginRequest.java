@@ -1,4 +1,4 @@
-package platform.dev.model.request.User;
+package platform.dev.model.request.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

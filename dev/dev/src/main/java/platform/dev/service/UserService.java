@@ -11,15 +11,15 @@ import platform.dev.exception.EmptyValueExistException;
 import platform.dev.exception.User.*;
 import platform.dev.model.CustomUserDetails;
 import platform.dev.model.User;
-import platform.dev.model.request.User.LoginRequest;
-import platform.dev.model.request.User.SignUpRequest;
-import platform.dev.model.response.User.UserInfo;
+import platform.dev.model.request.user.LoginRequest;
+import platform.dev.model.request.user.SignUpRequest;
+import platform.dev.model.response.user.UserInfo;
 import platform.dev.repository.UserRepository;
 import platform.dev.util.JwtUtil;
 
 import java.util.Optional;
 
-@AllArgsConstructor
+@AllArgsConstructor // DI
 @Service
 public class UserService {
 
@@ -98,7 +98,6 @@ public class UserService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String email = userDetails.getEmail();
-
         String parsedToken = token.substring(7);
 
         boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
