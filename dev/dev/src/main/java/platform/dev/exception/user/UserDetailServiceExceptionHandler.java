@@ -1,4 +1,4 @@
-package platform.dev.exception.User;
+package platform.dev.exception.user;
 
 import org.springframework.stereotype.Component;
 

@@ -1,15 +1,13 @@
 package platform.dev.service;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import platform.dev.exception.User.UserNotExistException;
+import platform.dev.exception.post.PostNotExistException;
+import platform.dev.exception.user.UserNotExistException;
 import platform.dev.model.CustomUserDetails;
 import platform.dev.model.Post;
 import platform.dev.model.User;
@@ -21,11 +19,9 @@ import platform.dev.repository.UserRepository;
 import platform.dev.util.JwtUtil;
 
 import javax.transaction.Transactional;
-import javax.validation.constraints.Null;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +37,7 @@ public class PostService {
     @Value("${post.path}")
     private String uploadUrl;
 
+    @Transactional
     public List<PostInfo> postHome() {
         // Response = List<PostInfo>
         List<Post> postList = postRepository.findAll();
@@ -132,7 +129,52 @@ public class PostService {
     }
 
     // 게시글 자세히보기 (로그인 유저와 작성자가 다르다면 조회수 증가)
+    @Transactional
+    public PostInfo getPostDetail(Long postId, String token) {
+        Long userId = 0L;
+        Optional<Post> post = postRepository.findByPostId(postId);
 
+        if (post.isEmpty()) {
+            throw new PostNotExistException();
+        }
+
+        if (token != null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+            String email = userDetails.getEmail();
+            Optional<User> user = userRepository.findByEmail(email);
+
+            if (user.isEmpty()) {
+                throw new UserNotExistException();
+            }
+
+            userId = user.get().getUserId();
+        }
+
+        // viewCount Update Issue
+        boolean flag = post.get().getUserInfo().getUserId() == userId ? true : false;
+
+        if (flag == false) {    // 같은 유저가 아니라면
+            Long viewCount = post.get().getViewCount() + 1;
+            postRepository.updateViewCount(viewCount, postId);
+        }
+
+        PostInfo postInfo = PostInfo.builder()
+                .postId(post.get().getPostId())
+                .title(post.get().getTitle())
+                .description(post.get().getDescription())
+                .thumbnail(post.get().getThumbnail())
+                .likeState(post.get().isLikeState())
+                .likeCount(post.get().getLikeCount())
+                .viewCount(post.get().getViewCount())
+                .needUser(post.get().getNeedUser())
+                .createdDate(post.get().getCreatedDate())
+                .userInfo(post.get().getUserInfo())
+                .build();
+
+        return postInfo;
+    }
     // 좋아요 기능
 
     // 게시글 수정

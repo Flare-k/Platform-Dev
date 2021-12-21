@@ -5,7 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import platform.dev.constant.ExceptionMessage;
-import platform.dev.exception.User.*;
+import platform.dev.exception.post.PostNotExistException;
+import platform.dev.exception.user.*;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -96,4 +97,19 @@ public class ApiExceptionHandler {
 
         return new ResponseEntity<>(apiException, httpStatus);
     }
+
+    @ExceptionHandler(value = {PostNotExistException.class})
+    public ResponseEntity<Object> handlePostNotExistException(PostNotExistException e){
+
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        ApiException apiException = new ApiException(
+                ExceptionMessage.POST_NOT_EXIST_MESSAGE,
+                httpStatus,
+                ZonedDateTime.now(ZoneId.of("Z"))
+        );
+
+        return new ResponseEntity<>(apiException, httpStatus);
+    }
+
 }

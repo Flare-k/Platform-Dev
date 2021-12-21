@@ -8,7 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import platform.dev.exception.EmptyValueExistException;
-import platform.dev.exception.User.*;
+import platform.dev.exception.user.*;
 import platform.dev.model.CustomUserDetails;
 import platform.dev.model.User;
 import platform.dev.model.request.user.LoginRequest;

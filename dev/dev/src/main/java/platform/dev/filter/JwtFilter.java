@@ -7,7 +7,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import platform.dev.constant.Util;
-import platform.dev.exception.User.UserNotExistException;
+import platform.dev.exception.user.UserNotExistException;
 import platform.dev.model.CustomUserDetails;
 import platform.dev.service.CustomUserDetailsService;
 import platform.dev.util.JwtUtil;

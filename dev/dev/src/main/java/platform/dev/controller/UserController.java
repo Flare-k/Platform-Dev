@@ -21,30 +21,6 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/login")
-    public ResponseEntity<TokenContainingResponse> login(@RequestBody LoginRequest loginRequest) throws Exception {
-        String token = userService.loginAndGenerateToken(loginRequest);
-
-        TokenContainingResponse response = new TokenContainingResponse(HttpStatus.OK, Controller.LOG_IN_SUCCESS_MESSAGE, token);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/signup")
-    public ResponseEntity<BasicResponse> signUp(@RequestBody SignUpRequest signUpRequest) {
-        userService.signUp(signUpRequest);
-        BasicResponse response = new BasicResponse(HttpStatus.OK, Controller.SIGN_UP_SUCCESS_MESSAGE);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @PostMapping("/me")
-    public ResponseEntity<MeResponse> me(@RequestHeader(value = Util.AUTHORIZATION) String token){
-        UserInfo user = userService.me(token);
-        MeResponse response = new MeResponse(HttpStatus.OK, Controller.LOG_IN_SUCCESS_MESSAGE, user);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
     @GetMapping("/{nickname}")
     public ResponseEntity<OtherResponse> otherUser(@PathVariable("nickname") String nickname) {
         System.out.println("nickname = " + nickname);
