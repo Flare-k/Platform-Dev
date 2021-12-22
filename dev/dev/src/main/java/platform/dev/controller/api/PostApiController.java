@@ -27,4 +27,9 @@ public class PostApiController {
         PostResponse response = new PostResponse(HttpStatus.OK, Controller.FILE_UPLOAD_SUCCESS_MESSAGE, postInfo);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+//    @PostMapping("/post/like")
+//    public ResponseEntity<PostResponse> clickLikes() {
+//
+//    }
 }

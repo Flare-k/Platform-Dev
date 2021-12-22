@@ -45,7 +45,7 @@ public class PostService {
 
         List<PostInfo> postInfoList = new ArrayList<>();
 
-        postList.stream().forEach(
+        postList.forEach(
                 post ->
                     postInfoList.add(
                             PostInfo.builder()
@@ -140,6 +140,7 @@ public class PostService {
             throw new PostNotExistException();
         }
 
+        // 로그인 중인 사용자 확인 (로그인 중인 사용자와 게시글 작성자가 같다면 조회수 업데이트 X)
         if (token != null) {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -163,14 +164,11 @@ public class PostService {
         }
 
         // viewCount Update Issue
-
-        boolean flag;
         postUserId = post.get().getUser().getUserId();
 
-        if (postUserId == userId) flag = true;
-        else flag = false;
+        boolean flag = (postUserId == userId);
 
-        if (flag == false) {    // 같은 유저가 아니라면
+        if (!flag) {    // 같은 유저가 아니라면
             Long viewCount = post.get().getViewCount() + 1;
             postRepository.updateViewCount(viewCount, postId);
             post = postRepository.findByPostId(postId);
@@ -197,9 +195,12 @@ public class PostService {
 
         return postInfo;
     }
+
     // 좋아요 기능
 
+
     // 게시글 수정
+
 
     // 게시글 삭제
 
