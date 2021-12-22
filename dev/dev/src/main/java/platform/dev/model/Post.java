@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DynamicUpdate;
 import platform.dev.model.response.user.UserInfo;
 
 import javax.persistence.*;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@DynamicUpdate
 @Entity(name = "POST")
 public class Post {
     @Id

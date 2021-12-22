@@ -17,6 +17,7 @@ import platform.dev.model.response.user.UserInfo;
 import platform.dev.repository.UserRepository;
 import platform.dev.util.JwtUtil;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @AllArgsConstructor // DI
@@ -29,6 +30,7 @@ public class UserService {
     private JwtUtil jwtUtil;
     private CustomUserDetailsService userDetailsService;
 
+    @Transactional
     public void signUp(SignUpRequest signUpRequest) {
         String email = Optional.ofNullable(signUpRequest.getEmail()).orElseThrow(EmptyValueExistException::new);
         String password = Optional.ofNullable(signUpRequest.getPassword()).orElseThrow(EmptyValueExistException::new);
@@ -66,6 +68,7 @@ public class UserService {
         userRepository.save(newUser);
     }
 
+    @Transactional
     public String loginAndGenerateToken(LoginRequest loginRequest) throws Exception {
         String email = Optional.ofNullable(loginRequest.getEmail()).orElseThrow(EmptyValueExistException::new);
         String password = Optional.ofNullable(loginRequest.getPassword()).orElseThrow(EmptyValueExistException::new);
@@ -93,6 +96,7 @@ public class UserService {
         return token;
     }
 
+    @Transactional
     public UserInfo me(String token) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -123,6 +127,7 @@ public class UserService {
         return userInfo;
     }
 
+    @Transactional
     public UserInfo otherUser(String nickname) {
         Optional<User> user = userRepository.findByNickname(nickname);
 

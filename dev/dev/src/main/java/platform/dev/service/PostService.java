@@ -132,6 +132,8 @@ public class PostService {
     @Transactional
     public PostInfo getPostDetail(Long postId, String token) {
         Long userId = 0L;
+        Long postUserId;
+
         Optional<Post> post = postRepository.findByPostId(postId);
 
         if (post.isEmpty()) {
@@ -143,6 +145,14 @@ public class PostService {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
             String email = userDetails.getEmail();
+            String parsedToken = token.substring(7);
+
+            boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
+
+            if (!isValidateToken) {
+                throw new UserNotExistException();
+            }
+
             Optional<User> user = userRepository.findByEmail(email);
 
             if (user.isEmpty()) {
@@ -153,11 +163,17 @@ public class PostService {
         }
 
         // viewCount Update Issue
-        boolean flag = post.get().getUserInfo().getUserId() == userId ? true : false;
+
+        boolean flag;
+        postUserId = post.get().getUser().getUserId();
+
+        if (postUserId == userId) flag = true;
+        else flag = false;
 
         if (flag == false) {    // 같은 유저가 아니라면
             Long viewCount = post.get().getViewCount() + 1;
             postRepository.updateViewCount(viewCount, postId);
+            post = postRepository.findByPostId(postId);
         }
 
         PostInfo postInfo = PostInfo.builder()
@@ -170,7 +186,13 @@ public class PostService {
                 .viewCount(post.get().getViewCount())
                 .needUser(post.get().getNeedUser())
                 .createdDate(post.get().getCreatedDate())
-                .userInfo(post.get().getUserInfo())
+                .userInfo(UserInfo.builder()
+                        .userId(post.get().getUser().getUserId())
+                        .email(post.get().getUser().getEmail())
+                        .name(post.get().getUser().getName())
+                        .nickname(post.get().getUser().getNickname())
+                        .address(post.get().getUser().getAddress())
+                        .build())
                 .build();
 
         return postInfo;

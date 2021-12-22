@@ -38,7 +38,7 @@ public class PostController {
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponse> getPostInfo(@PathVariable("postId") Long postId, @RequestHeader(value = Util.AUTHORIZATION, required = false) String token) {
         PostInfo postInfo = postService.getPostDetail(postId, token);
-        PostResponse response = new PostResponse(HttpStatus.OK, Controller.FILE_UPLOAD_SUCCESS_MESSAGE, postInfo);
+        PostResponse response = new PostResponse(HttpStatus.OK, Controller.FILE_VIEW_SUCCESS_MESSAGE, postInfo);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
