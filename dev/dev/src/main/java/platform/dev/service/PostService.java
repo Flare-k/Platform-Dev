@@ -169,11 +169,12 @@ public class PostService {
         Long postUserId;
 
         Optional<Post> post = postRepository.findByPostId(postId);
-        post.get().updateLikesCount((long) post.get().getLikesList().size());
 
         if (post.isEmpty()) {
             throw new PostNotExistException();
         }
+
+        post.get().updateLikesCount((long) post.get().getLikesList().size());
 
         // 로그인 중인 사용자 확인 (로그인 중인 사용자와 게시글 작성자가 같다면 조회수 업데이트 X)
         if (token != null) {
@@ -231,64 +232,6 @@ public class PostService {
                 .build();
 
         return postInfo;
-    }
-
-    // 좋아요 클릭
-    @Transactional
-    public void clickLikes(Long postId, String token) {
-        // 현재 로그인중인 유저 확인
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        String email = userDetails.getEmail();
-        String parsedToken = token.substring(7);
-
-        boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
-
-        if (!isValidateToken) {
-            throw new UserNotExistException();
-        }
-
-        Optional<User> user = userRepository.findByEmail(email);
-
-        if (user.isEmpty()) {
-            throw new UserNotExistException();
-        }
-
-        try {
-            likesRepository.likes(postId, user.get().getUserId());
-        } catch (Exception e) {
-            throw new CustomApiException("이미 좋아요 하였습니다.");
-        }
-    }
-
-    // 좋아요 취소
-    @Transactional
-    public void clickUnlikes(Long postId, String token) {
-        // 현재 로그인중인 유저 확인
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        String email = userDetails.getEmail();
-        String parsedToken = token.substring(7);
-
-        boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
-
-        if (!isValidateToken) {
-            throw new UserNotExistException();
-        }
-
-        Optional<User> user = userRepository.findByEmail(email);
-
-        if (user.isEmpty()) {
-            throw new UserNotExistException();
-        }
-
-        try {
-            likesRepository.unLikes(postId, user.get().getUserId());
-        } catch (Exception e) {
-            throw new CustomApiException("이미 좋아요 하였습니다.");
-        }
     }
 
     // 게시글 수정

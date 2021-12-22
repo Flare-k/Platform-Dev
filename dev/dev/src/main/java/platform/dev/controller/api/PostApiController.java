@@ -25,16 +25,4 @@ public class PostApiController {
         PostResponse response = new PostResponse(HttpStatus.OK, Controller.FILE_UPLOAD_SUCCESS_MESSAGE, postInfo);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    @PostMapping("/post/like/{postId}")
-    public ResponseEntity<?> clickLikes(@PathVariable("postId") Long postId, @RequestHeader(value = Util.AUTHORIZATION) String token) {
-        postService.clickLikes(postId, token);
-        return new ResponseEntity<>(Controller.CLICK_LIKE_SUCCESS_MESSAGE, HttpStatus.OK);
-    }
-
-    @PostMapping("/post/unlike/{postId}")
-    public ResponseEntity<?> clickUnlikes(@PathVariable("postId") Long postId, @RequestHeader(value = Util.AUTHORIZATION) String token) {
-        postService.clickUnlikes(postId, token);
-        return new ResponseEntity<>(Controller.CLICK_UNLIKE_SUCCESS_MESSAGE, HttpStatus.OK);
-    }
 }
