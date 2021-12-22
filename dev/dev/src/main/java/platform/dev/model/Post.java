@@ -46,6 +46,11 @@ public class Post {
     @OneToMany(mappedBy = "post")
     private List<Likes> likesList;
 
+    @OrderBy("id")
+    @JsonIgnoreProperties({"post"})
+    @OneToMany(mappedBy = "post")
+    private List<Comment> commentList;
+
     @PrePersist
     public void initDefaultValue() {
         this.createdDate = LocalDateTime.now();
