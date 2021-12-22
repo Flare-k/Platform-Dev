@@ -6,6 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import platform.dev.constant.Role;
 import platform.dev.exception.post.PostNotExistException;
 import platform.dev.exception.user.UserNotExistException;
 import platform.dev.model.CustomUserDetails;
