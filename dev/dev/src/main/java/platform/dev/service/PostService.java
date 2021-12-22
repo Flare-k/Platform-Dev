@@ -8,14 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import platform.dev.exception.post.PostNotExistException;
 import platform.dev.exception.user.UserNotExistException;
-import platform.dev.handler.CustomApiException;
 import platform.dev.model.CustomUserDetails;
 import platform.dev.model.Post;
 import platform.dev.model.User;
 import platform.dev.model.request.post.PostRequest;
 import platform.dev.model.response.post.PostInfo;
 import platform.dev.model.response.user.UserInfo;
-import platform.dev.repository.LikesRepository;
 import platform.dev.repository.PostRepository;
 import platform.dev.repository.UserRepository;
 import platform.dev.util.JwtUtil;
@@ -35,7 +33,6 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
-    private final LikesRepository likesRepository;
     private final JwtUtil jwtUtil;
     @Value("${post.path}")
     private String uploadUrl;
