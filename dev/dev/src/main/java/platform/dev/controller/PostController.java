@@ -23,9 +23,9 @@ public class PostController {
     private PostService postService;
 
     @GetMapping("")
-    public PostPreviewResponse getHome() {
+    public PostPreviewResponse getHome(@RequestHeader(value = Util.AUTHORIZATION, required = false) String token) {
         PostPreviewResponse postPreviewResponse = new PostPreviewResponse();
-        postPreviewResponse.setPostInfoList(postService.postHome());
+        postPreviewResponse.setPostInfoList(postService.postHome(token));
         return postPreviewResponse;
     }
 

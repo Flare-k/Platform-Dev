@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import platform.dev.exception.post.PostNotExistException;
 import platform.dev.exception.user.UserNotExistException;
+import platform.dev.handler.CustomApiException;
 import platform.dev.model.CustomUserDetails;
 import platform.dev.model.Post;
 import platform.dev.model.User;
 import platform.dev.model.request.post.PostRequest;
 import platform.dev.model.response.post.PostInfo;
 import platform.dev.model.response.user.UserInfo;
+import platform.dev.repository.LikesRepository;
 import platform.dev.repository.PostRepository;
 import platform.dev.repository.UserRepository;
 import platform.dev.util.JwtUtil;
@@ -33,17 +35,50 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final LikesRepository likesRepository;
     private final JwtUtil jwtUtil;
     @Value("${post.path}")
     private String uploadUrl;
 
     @Transactional
-    public List<PostInfo> postHome() {
+    public List<PostInfo> postHome(String token) {
+        Long userId = 0L;
+
+        if (token != null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+            String email = userDetails.getEmail();
+            String parsedToken = token.substring(7);
+
+            boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
+
+            if (!isValidateToken) {
+                throw new UserNotExistException();
+            }
+
+            Optional<User> user = userRepository.findByEmail(email);
+            userId = user.get().getUserId();
+
+            if (user.isEmpty()) {
+                throw new UserNotExistException();
+            }
+        }
         // Response = List<PostInfo>
         List<Post> postList = postRepository.findAll();
         // List<Post> -> List<PostInfo>
 
         List<PostInfo> postInfoList = new ArrayList<>();
+
+        Long finalUserId = userId;
+        postList.forEach(post -> {
+            post.updateLikesCount((long) post.getLikesList().size());
+            post.getLikesList().forEach(likes -> {
+                if (likes.getUser().getUserId() == finalUserId) {
+                    post.updateLikesState(true);
+                }
+            });
+        });
 
         postList.forEach(
                 post ->
@@ -53,8 +88,8 @@ public class PostService {
                                     .title(post.getTitle())
                                     .description(post.getDescription())
                                     .thumbnail(post.getThumbnail())
-                                    .likeState(post.isLikeState())
                                     .likeCount(post.getLikeCount())
+                                    .likeState(post.isLikeState())
                                     .viewCount(post.getViewCount())
                                     .needUser(post.getNeedUser())
                                     .createdDate(post.getCreatedDate())
@@ -113,7 +148,6 @@ public class PostService {
                 .title(savedPost.getTitle())
                 .description(savedPost.getDescription())
                 .thumbnail(savedPost.getThumbnail())
-                .likeState(savedPost.isLikeState())
                 .likeCount(savedPost.getLikeCount())
                 .viewCount(savedPost.getViewCount())
                 .needUser(savedPost.getNeedUser())
@@ -135,6 +169,7 @@ public class PostService {
         Long postUserId;
 
         Optional<Post> post = postRepository.findByPostId(postId);
+        post.get().updateLikesCount((long) post.get().getLikesList().size());
 
         if (post.isEmpty()) {
             throw new PostNotExistException();
@@ -173,13 +208,15 @@ public class PostService {
             postRepository.updateViewCount(viewCount, postId);
             post = postRepository.findByPostId(postId);
         }
+        else {
+            post.get().updateLikesState(true);
+        }
 
         PostInfo postInfo = PostInfo.builder()
                 .postId(post.get().getPostId())
                 .title(post.get().getTitle())
                 .description(post.get().getDescription())
                 .thumbnail(post.get().getThumbnail())
-                .likeState(post.get().isLikeState())
                 .likeCount(post.get().getLikeCount())
                 .viewCount(post.get().getViewCount())
                 .needUser(post.get().getNeedUser())
@@ -196,8 +233,63 @@ public class PostService {
         return postInfo;
     }
 
-    // 좋아요 기능
+    // 좋아요 클릭
+    @Transactional
+    public void clickLikes(Long postId, String token) {
+        // 현재 로그인중인 유저 확인
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
+        String email = userDetails.getEmail();
+        String parsedToken = token.substring(7);
+
+        boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
+
+        if (!isValidateToken) {
+            throw new UserNotExistException();
+        }
+
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isEmpty()) {
+            throw new UserNotExistException();
+        }
+
+        try {
+            likesRepository.likes(postId, user.get().getUserId());
+        } catch (Exception e) {
+            throw new CustomApiException("이미 좋아요 하였습니다.");
+        }
+    }
+
+    // 좋아요 취소
+    @Transactional
+    public void clickUnlikes(Long postId, String token) {
+        // 현재 로그인중인 유저 확인
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        String email = userDetails.getEmail();
+        String parsedToken = token.substring(7);
+
+        boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
+
+        if (!isValidateToken) {
+            throw new UserNotExistException();
+        }
+
+        Optional<User> user = userRepository.findByEmail(email);
+
+        if (user.isEmpty()) {
+            throw new UserNotExistException();
+        }
+
+        try {
+            likesRepository.unLikes(postId, user.get().getUserId());
+        } catch (Exception e) {
+            throw new CustomApiException("이미 좋아요 하였습니다.");
+        }
+    }
 
     // 게시글 수정
 

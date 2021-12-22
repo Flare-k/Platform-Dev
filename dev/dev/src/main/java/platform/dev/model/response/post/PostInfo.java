@@ -18,8 +18,8 @@ public class PostInfo {
     private String title;
     private String description;
     private String thumbnail;
-    private boolean likeState;
     private Long likeCount;
+    private boolean likeState;
     private Long viewCount;
     private Long needUser;
     private LocalDateTime createdDate;
