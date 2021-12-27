@@ -4,16 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import platform.dev.constant.Controller;
 import platform.dev.constant.Util;
-import platform.dev.model.request.post.PostRequest;
 import platform.dev.model.response.post.PostInfo;
 import platform.dev.model.response.post.PostPreviewResponse;
 import platform.dev.model.response.post.PostResponse;
 import platform.dev.service.PostService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/post")

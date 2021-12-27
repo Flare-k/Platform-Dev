@@ -1,25 +1,13 @@
 package platform.dev.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import platform.dev.exception.user.UserNotExistException;
 import platform.dev.handler.CustomApiException;
-import platform.dev.model.CustomUserDetails;
-import platform.dev.model.Post;
-import platform.dev.model.User;
-import platform.dev.model.response.post.PostInfo;
 import platform.dev.model.response.user.UserInfo;
 import platform.dev.repository.LikesRepository;
 import platform.dev.repository.UserRepository;
-import platform.dev.util.JwtUtil;
 
 import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 @AllArgsConstructor
 @Service

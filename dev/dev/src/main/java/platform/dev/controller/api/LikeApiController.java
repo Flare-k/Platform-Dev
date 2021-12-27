@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import platform.dev.constant.Controller;
 import platform.dev.constant.Util;
 import platform.dev.service.LikeService;
-import platform.dev.service.PostService;
 
 @RestController
 @RequestMapping("/api")

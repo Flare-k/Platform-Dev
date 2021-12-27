@@ -1,10 +1,8 @@
 package platform.dev.model.response.post;
 
 import lombok.*;
-import platform.dev.model.Post;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter

@@ -204,6 +204,7 @@ public class PostService {
             // 게시글 작성자와 현재 로그인 유저가 일치한다면..
             likesRepository.deleteLikesByPost(post);
             commentRepository.deleteCommentByPost(post);
+            viewRepository.deleteViewByPost(post);
 
             File file = new File(uploadUrl + post.getThumbnail());
             file.delete();

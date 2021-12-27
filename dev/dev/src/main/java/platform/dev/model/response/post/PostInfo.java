@@ -1,8 +1,6 @@
 package platform.dev.model.response.post;
 
 import lombok.*;
-import platform.dev.model.Post;
-import platform.dev.model.User;
 import platform.dev.model.response.user.UserInfo;
 
 import java.time.LocalDateTime;
