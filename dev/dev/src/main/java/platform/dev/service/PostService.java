@@ -6,7 +6,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import platform.dev.constant.Role;
 import platform.dev.exception.post.PostNotExistException;
 import platform.dev.exception.user.UserNotExistException;
 import platform.dev.model.CustomUserDetails;
@@ -15,11 +14,14 @@ import platform.dev.model.User;
 import platform.dev.model.request.post.PostRequest;
 import platform.dev.model.response.post.PostInfo;
 import platform.dev.model.response.user.UserInfo;
+import platform.dev.repository.CommentRepository;
+import platform.dev.repository.LikesRepository;
 import platform.dev.repository.PostRepository;
 import platform.dev.repository.UserRepository;
 import platform.dev.util.JwtUtil;
 
 import javax.transaction.Transactional;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -34,34 +36,18 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final LikesRepository likesRepository;
+    private final CommentRepository commentRepository;
+    private final UserService userService;
     private final JwtUtil jwtUtil;
     @Value("${post.path}")
     private String uploadUrl;
 
     @Transactional
     public List<PostInfo> postHome(String token) {
-        Long userId = 0L;
+        UserInfo me = userService.me(token);
+        Long userId = me.getUserId();
 
-        if (token != null) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-            String email = userDetails.getEmail();
-            String parsedToken = token.substring(7);
-
-            boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
-
-            if (!isValidateToken) {
-                throw new UserNotExistException();
-            }
-
-            Optional<User> user = userRepository.findByEmail(email);
-            userId = user.get().getUserId();
-
-            if (user.isEmpty()) {
-                throw new UserNotExistException();
-            }
-        }
         // Response = List<PostInfo>
         List<Post> postList = postRepository.findAll();
         // List<Post> -> List<PostInfo>
@@ -107,7 +93,7 @@ public class PostService {
 
     // 게시글 업로드
     @Transactional
-    public PostInfo postUpload(PostRequest postRequest, MultipartFile multipartFile) {
+    public PostInfo postUpload(PostRequest postRequest, MultipartFile multipartFile, String token) {
         UUID uuid = UUID.randomUUID();
         String thumbnail = uuid + "_" + multipartFile.getOriginalFilename();
 
@@ -121,11 +107,8 @@ public class PostService {
         }
 
         // 게시자 = 현재 로그인한 사람
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        String email = userDetails.getEmail();
-        Optional<User> user = userRepository.findByEmail(email);
+        UserInfo me = userService.me(token);
+        Optional<User> user = userRepository.findByEmail(me.getEmail());
 
         if (user.isEmpty()) {
             throw new UserNotExistException();
@@ -163,7 +146,6 @@ public class PostService {
     // 게시글 자세히보기 (로그인 유저와 작성자가 다르다면 조회수 증가)
     @Transactional
     public PostInfo getPostDetail(Long postId, String token) {
-        Long userId = 0L;
         Long postUserId;
 
         Optional<Post> post = postRepository.findByPostId(postId);
@@ -172,33 +154,14 @@ public class PostService {
             throw new PostNotExistException();
         }
 
-        post.get().updateLikesCount((long) post.get().getLikesList().size());
-
         // 로그인 중인 사용자 확인 (로그인 중인 사용자와 게시글 작성자가 같다면 조회수 업데이트 X)
-        if (token != null) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-            String email = userDetails.getEmail();
-            String parsedToken = token.substring(7);
-
-            boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
-
-            if (!isValidateToken) {
-                throw new UserNotExistException();
-            }
-
-            Optional<User> user = userRepository.findByEmail(email);
-
-            if (user.isEmpty()) {
-                throw new UserNotExistException();
-            }
-
-            userId = user.get().getUserId();
-        }
+        UserInfo me = userService.me(token);
+        Long userId = me.getUserId();
 
         // viewCount Update Issue
         postUserId = post.get().getUser().getUserId();
+        // 좋아요 정보
+        post.get().updateLikesCount((long) post.get().getLikesList().size());
 
         boolean flag = (postUserId == userId);
 
@@ -236,6 +199,22 @@ public class PostService {
 
 
     // 게시글 삭제
+    @Transactional
+    public void postDelete(Long postId, String token) {
+        UserInfo me = userService.me(token);
+        Post post = postRepository.findByPostId(postId).get();
 
+        if (post.getUser().getUserId() == me.getUserId()) {
+            // 게시글 작성자와 현재 로그인 유저가 일치한다면..
+            likesRepository.deleteLikesByPost(post);
+            commentRepository.deleteCommentByPost(post);
+
+            File file = new File(uploadUrl + post.getThumbnail());
+            file.delete();
+
+            postRepository.deleteByPostId(postId);
+        }
+
+    }
 
 }

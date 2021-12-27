@@ -20,12 +20,19 @@ public class PostApiController {
     private PostService postService;
 
     @PostMapping("/post/upload")
-    public ResponseEntity<PostResponse> postUpload(PostRequest postRequest, @RequestParam("thumbnail") MultipartFile multipartFile) {
-        PostInfo postInfo = postService.postUpload(postRequest, multipartFile);
+    public ResponseEntity<PostResponse> postUpload(PostRequest postRequest, @RequestParam("thumbnail") MultipartFile multipartFile, @RequestHeader(value = Util.AUTHORIZATION) String token) {
+        PostInfo postInfo = postService.postUpload(postRequest, multipartFile, token);
         PostResponse response = new PostResponse(HttpStatus.OK, Controller.FILE_UPLOAD_SUCCESS_MESSAGE, postInfo);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-    
+
+    @PostMapping("/post/delete")
+    public String postdelete(@RequestParam("postId") Long postId, @RequestHeader(value = Util.AUTHORIZATION) String token) {
+        postService.postDelete(postId, token);
+        // 사용자 프로필로 리다이렉팅
+        return "delete complete";
+    }
+
     // 지원자 추가 시 needUser 1 감소 & 대기 리스트에 지원자 담기
     // 참여 중, 참여 대기 중임을 나타내는 포스트 테이블도 필요
 }

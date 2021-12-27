@@ -9,6 +9,7 @@ import platform.dev.model.Comment;
 import platform.dev.model.CustomUserDetails;
 import platform.dev.model.Post;
 import platform.dev.model.User;
+import platform.dev.model.response.user.UserInfo;
 import platform.dev.repository.CommentRepository;
 import platform.dev.repository.PostRepository;
 import platform.dev.repository.UserRepository;
@@ -24,30 +25,17 @@ public class CommentService {
     private CommentRepository commentRepository;
     private UserRepository userRepository;
     private PostRepository postRepository;
-    private JwtUtil jwtUtil;
+    private UserService userService;
 
     @Transactional
     public Comment addComment(String text, Long postId, String token) {
         Post post = postRepository.findByPostId(postId).get();
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        String email = userDetails.getEmail();
-        String parsedToken = token.substring(7);
-
-        boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
-
-        if (!isValidateToken) {
-            throw new UserNotExistException();
-        }
-
-        Optional<User> user = userRepository.findByEmail(email);
+        UserInfo me = userService.me(token);
+        Optional<User> user = userRepository.findByEmail(me.getEmail());
 
         if (user.isEmpty()) {
             throw new UserNotExistException();
         }
-
 
         Comment comment = Comment.builder()
                 .text(text)
