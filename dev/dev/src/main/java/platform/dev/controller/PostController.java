@@ -42,8 +42,6 @@ public class PostController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // 좋아요 기능
-
     // 게시글 수정
 
     // 게시글 삭제

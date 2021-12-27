@@ -9,6 +9,7 @@ import platform.dev.constant.Controller;
 import platform.dev.constant.Util;
 import platform.dev.model.request.post.PostRequest;
 import platform.dev.model.response.post.PostInfo;
+import platform.dev.model.response.post.PostPreviewResponse;
 import platform.dev.model.response.post.PostResponse;
 import platform.dev.service.PostService;
 
@@ -33,6 +34,23 @@ public class PostApiController {
         return "delete complete";
     }
 
+    // '좋아요'를 누른 게시물 가져오기
+    @GetMapping("/post/likes")
+    public PostPreviewResponse getLikesPost(@RequestHeader(value = Util.AUTHORIZATION) String token) {
+        PostPreviewResponse postPreviewResponse = new PostPreviewResponse();
+        postPreviewResponse.setPostInfoList(postService.getLikesPost(token));
+        return postPreviewResponse;
+    }
+
+    // 조회한 게시물 가져오기
+    @GetMapping("/post/views")
+    public PostPreviewResponse getViewPost(@RequestHeader(value = Util.AUTHORIZATION) String token) {
+        PostPreviewResponse postPreviewResponse = new PostPreviewResponse();
+        postPreviewResponse.setPostInfoList(postService.getViewPost(token));
+        return postPreviewResponse;
+    }
+    
     // 지원자 추가 시 needUser 1 감소 & 대기 리스트에 지원자 담기
     // 참여 중, 참여 대기 중임을 나타내는 포스트 테이블도 필요
+
 }

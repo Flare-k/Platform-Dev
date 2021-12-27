@@ -157,6 +157,7 @@ public class PostService {
             post = postRepository.findByPostId(postId);
         }
 
+        // 현재 로그인 중인 사용자가 좋아요를 클릭한 게시물 표시
         Optional<Post> finalPost = post;
         post.get().getLikesList().forEach(likes -> {
             if (likes.getUser().getUserId() == userId) {
@@ -212,4 +213,81 @@ public class PostService {
 
     }
 
+    // 로그인한 유저가 좋아요를 누른 게시물
+    public List<PostInfo> getLikesPost(String token) {
+        UserInfo me = userService.me(token);
+        Optional<User> user = userRepository.findByEmail(me.getEmail());
+
+        List<Post> postList = postRepository.findAll(); // 전체 Post 데이터
+        List<PostInfo> likesPostList = new ArrayList<>();   // 내가 좋아요를 누른 게시물 가져오기
+
+        postList.forEach(post -> {
+            post.updateLikesCount((long) post.getLikesList().size());
+            post.getLikesList().forEach(likes -> {
+                if (likes.getUser().getUserId() == user.get().getUserId()) {
+                    post.updateLikesState(true);
+                    likesPostList.add(
+                            PostInfo.builder()
+                                    .postId(post.getPostId())
+                                    .title(post.getTitle())
+                                    .description(post.getDescription())
+                                    .thumbnail(post.getThumbnail())
+                                    .likeCount(post.getLikeCount())
+                                    .likeState(post.isLikeState())
+                                    .viewCount(post.getViewCount())
+                                    .needUser(post.getNeedUser())
+                                    .createdDate(post.getCreatedDate())
+                                    .userInfo(UserInfo.builder()
+                                            .userId(post.getUser().getUserId())
+                                            .email(post.getUser().getEmail())
+                                            .name(post.getUser().getName())
+                                            .nickname(post.getUser().getNickname())
+                                            .address(post.getUser().getAddress())
+                                            .build())
+                                    .build());
+                }
+            });
+        });
+
+        return likesPostList;
+    }
+
+    // 로그인한 유저가 조회한 게시물
+    public List<PostInfo> getViewPost(String token) {
+        UserInfo me = userService.me(token);
+        Optional<User> user = userRepository.findByEmail(me.getEmail());
+
+        List<Post> postList = postRepository.findAll(); // 전체 Post 데이터
+        List<PostInfo> viewPostList = new ArrayList<>();   // 내가 조회한 게시물 가져오기
+
+        postList.forEach(post -> {
+            post.updateLikesCount((long) post.getLikesList().size());
+            post.getViewList().forEach(views -> {
+                if (views.getUser().getUserId() == user.get().getUserId()) {
+                    post.updateLikesState(true);
+                    viewPostList.add(
+                            PostInfo.builder()
+                                    .postId(post.getPostId())
+                                    .title(post.getTitle())
+                                    .description(post.getDescription())
+                                    .thumbnail(post.getThumbnail())
+                                    .likeCount(post.getLikeCount())
+                                    .likeState(post.isLikeState())
+                                    .viewCount(post.getViewCount())
+                                    .needUser(post.getNeedUser())
+                                    .createdDate(post.getCreatedDate())
+                                    .userInfo(UserInfo.builder()
+                                            .userId(post.getUser().getUserId())
+                                            .email(post.getUser().getEmail())
+                                            .name(post.getUser().getName())
+                                            .nickname(post.getUser().getNickname())
+                                            .address(post.getUser().getAddress())
+                                            .build())
+                                    .build());
+                }
+            });
+        });
+
+        return viewPostList;
+    }
 }
