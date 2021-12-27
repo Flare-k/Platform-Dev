@@ -39,7 +39,6 @@ public class PostService {
     private final LikesRepository likesRepository;
     private final CommentRepository commentRepository;
     private final UserService userService;
-    private final JwtUtil jwtUtil;
     @Value("${post.path}")
     private String uploadUrl;
 
@@ -48,13 +47,12 @@ public class PostService {
         UserInfo me = userService.me(token);
         Long userId = me.getUserId();
 
-        // Response = List<PostInfo>
+        // Response = List<Post> -> List<PostInfo>
         List<Post> postList = postRepository.findAll();
-        // List<Post> -> List<PostInfo>
-
         List<PostInfo> postInfoList = new ArrayList<>();
 
         Long finalUserId = userId;
+
         postList.forEach(post -> {
             post.updateLikesCount((long) post.getLikesList().size());
             post.getLikesList().forEach(likes -> {
@@ -110,10 +108,6 @@ public class PostService {
         UserInfo me = userService.me(token);
         Optional<User> user = userRepository.findByEmail(me.getEmail());
 
-        if (user.isEmpty()) {
-            throw new UserNotExistException();
-        }
-
         Post newPost = Post.builder()
                 .title(postRequest.getTitle())
                 .description(postRequest.getDescription())
@@ -146,8 +140,6 @@ public class PostService {
     // 게시글 자세히보기 (로그인 유저와 작성자가 다르다면 조회수 증가)
     @Transactional
     public PostInfo getPostDetail(Long postId, String token) {
-        Long postUserId;
-
         Optional<Post> post = postRepository.findByPostId(postId);
 
         if (post.isEmpty()) {
@@ -159,7 +151,7 @@ public class PostService {
         Long userId = me.getUserId();
 
         // viewCount Update Issue
-        postUserId = post.get().getUser().getUserId();
+        Long postUserId = post.get().getUser().getUserId();
         // 좋아요 정보
         post.get().updateLikesCount((long) post.get().getLikesList().size());
 
@@ -170,25 +162,30 @@ public class PostService {
             postRepository.updateViewCount(viewCount, postId);
             post = postRepository.findByPostId(postId);
         }
-        else {
-            post.get().updateLikesState(true);
-        }
+
+        Optional<Post> finalPost = post;
+        post.get().getLikesList().forEach(likes -> {
+            if (likes.getUser().getUserId() == userId) {
+                finalPost.get().updateLikesState(true);
+            }
+        });
 
         PostInfo postInfo = PostInfo.builder()
-                .postId(post.get().getPostId())
-                .title(post.get().getTitle())
-                .description(post.get().getDescription())
-                .thumbnail(post.get().getThumbnail())
-                .likeCount(post.get().getLikeCount())
-                .viewCount(post.get().getViewCount())
-                .needUser(post.get().getNeedUser())
-                .createdDate(post.get().getCreatedDate())
+                .postId(finalPost.get().getPostId())
+                .title(finalPost.get().getTitle())
+                .description(finalPost.get().getDescription())
+                .thumbnail(finalPost.get().getThumbnail())
+                .likeCount(finalPost.get().getLikeCount())
+                .likeState(finalPost.get().isLikeState())
+                .viewCount(finalPost.get().getViewCount())
+                .needUser(finalPost.get().getNeedUser())
+                .createdDate(finalPost.get().getCreatedDate())
                 .userInfo(UserInfo.builder()
-                        .userId(post.get().getUser().getUserId())
-                        .email(post.get().getUser().getEmail())
-                        .name(post.get().getUser().getName())
-                        .nickname(post.get().getUser().getNickname())
-                        .address(post.get().getUser().getAddress())
+                        .userId(finalPost.get().getUser().getUserId())
+                        .email(finalPost.get().getUser().getEmail())
+                        .name(finalPost.get().getUser().getName())
+                        .nickname(finalPost.get().getUser().getNickname())
+                        .address(finalPost.get().getUser().getAddress())
                         .build())
                 .build();
 

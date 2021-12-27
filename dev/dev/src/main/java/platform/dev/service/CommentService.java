@@ -33,10 +33,6 @@ public class CommentService {
         UserInfo me = userService.me(token);
         Optional<User> user = userRepository.findByEmail(me.getEmail());
 
-        if (user.isEmpty()) {
-            throw new UserNotExistException();
-        }
-
         Comment comment = Comment.builder()
                 .text(text)
                 .post(post)

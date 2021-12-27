@@ -27,7 +27,7 @@ public class PostApiController {
     }
 
     @PostMapping("/post/delete")
-    public String postdelete(@RequestParam("postId") Long postId, @RequestHeader(value = Util.AUTHORIZATION) String token) {
+    public String postDelete(@RequestParam("postId") Long postId, @RequestHeader(value = Util.AUTHORIZATION) String token) {
         postService.postDelete(postId, token);
         // 사용자 프로필로 리다이렉팅
         return "delete complete";

@@ -8,6 +8,7 @@ import platform.dev.exception.user.UserNotExistException;
 import platform.dev.handler.CustomApiException;
 import platform.dev.model.CustomUserDetails;
 import platform.dev.model.User;
+import platform.dev.model.response.user.UserInfo;
 import platform.dev.repository.LikesRepository;
 import platform.dev.repository.UserRepository;
 import platform.dev.util.JwtUtil;
@@ -18,34 +19,17 @@ import java.util.Optional;
 @AllArgsConstructor
 @Service
 public class LikeService {
-
-    private final UserRepository userRepository;
     private final LikesRepository likesRepository;
-    private final JwtUtil jwtUtil;
+    private final UserService userService;
+
     // 좋아요 클릭
     @Transactional
     public void clickLikes(Long postId, String token) {
-        // 현재 로그인중인 유저 확인
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        String email = userDetails.getEmail();
-        String parsedToken = token.substring(7);
-
-        boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
-
-        if (!isValidateToken) {
-            throw new UserNotExistException();
-        }
-
-        Optional<User> user = userRepository.findByEmail(email);
-
-        if (user.isEmpty()) {
-            throw new UserNotExistException();
-        }
+        // 현재 로그인 중인 유저 확인
+        UserInfo me = userService.me(token);
 
         try {
-            likesRepository.likes(postId, user.get().getUserId());
+            likesRepository.clickLikes(postId, me.getUserId());
         } catch (Exception e) {
             throw new CustomApiException("이미 좋아요 하였습니다.");
         }
@@ -55,26 +39,10 @@ public class LikeService {
     @Transactional
     public void clickUnlikes(Long postId, String token) {
         // 현재 로그인중인 유저 확인
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        String email = userDetails.getEmail();
-        String parsedToken = token.substring(7);
-
-        boolean isValidateToken = jwtUtil.validateToken(parsedToken, email);
-
-        if (!isValidateToken) {
-            throw new UserNotExistException();
-        }
-
-        Optional<User> user = userRepository.findByEmail(email);
-
-        if (user.isEmpty()) {
-            throw new UserNotExistException();
-        }
+        UserInfo me = userService.me(token);
 
         try {
-            likesRepository.unLikes(postId, user.get().getUserId());
+            likesRepository.clickUnLikes(postId, me.getUserId());
         } catch (Exception e) {
             throw new CustomApiException("이미 좋아요 하였습니다.");
         }
