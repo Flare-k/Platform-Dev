@@ -2,23 +2,16 @@ package platform.dev.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import platform.dev.exception.post.PostNotExistException;
-import platform.dev.exception.user.UserNotExistException;
-import platform.dev.model.CustomUserDetails;
 import platform.dev.model.Post;
 import platform.dev.model.User;
+import platform.dev.model.View;
 import platform.dev.model.request.post.PostRequest;
 import platform.dev.model.response.post.PostInfo;
 import platform.dev.model.response.user.UserInfo;
-import platform.dev.repository.CommentRepository;
-import platform.dev.repository.LikesRepository;
-import platform.dev.repository.PostRepository;
-import platform.dev.repository.UserRepository;
-import platform.dev.util.JwtUtil;
+import platform.dev.repository.*;
 
 import javax.transaction.Transactional;
 import java.io.File;
@@ -37,6 +30,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final LikesRepository likesRepository;
+    private final ViewRepository viewRepository;
     private final CommentRepository commentRepository;
     private final UserService userService;
     @Value("${post.path}")
@@ -169,6 +163,10 @@ public class PostService {
                 finalPost.get().updateLikesState(true);
             }
         });
+
+        // 조회 등록
+        Optional<View> view = viewRepository.findByPostIdAndUserId(postId, userId);
+        if (view.isEmpty()) viewRepository.viewPost(postId, userId);
 
         PostInfo postInfo = PostInfo.builder()
                 .postId(finalPost.get().getPostId())

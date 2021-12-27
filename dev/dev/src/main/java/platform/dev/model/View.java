@@ -27,7 +27,7 @@ public class View {
     @ManyToOne
     private Post post;
 
-    @JsonIgnoreProperties({"postList"}) //post -> user -> likesList -> user -> postList 무한 참조 막기 위함
+    @JsonIgnoreProperties({"postList"})
     @JoinColumn(name = "user_id")
     @ManyToOne
     private User user;
