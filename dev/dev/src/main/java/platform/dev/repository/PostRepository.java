@@ -16,4 +16,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE Post p SET p.view_count = :view_count WHERE p.post_id = :post_id", nativeQuery = true)
     void updateViewCount(@Param("view_count") Long viewCount, @Param("post_id") Long postId);
+
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE Post p SET p.view_count = :view_count WHERE p.post_id = :post_id", nativeQuery = true)
+    void update(@Param("view_count") Long viewCount, @Param("post_id") Long postId);
 }

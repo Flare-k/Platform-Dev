@@ -73,6 +73,13 @@ public class Post {
         this.user = user;
     }
 
+    public void update(String title, String description, String thumbnail, Long needUser) {
+        this.title = title;
+        this.description = description;
+        this.thumbnail = thumbnail;
+        this.needUser = needUser;
+    }
+
     public void updateLikesCount(Long likeCount) {
         this.likeCount = likeCount;
     }

@@ -192,6 +192,32 @@ public class PostService {
     }
 
     // 게시글 수정
+    @Transactional
+    public void updatePost(PostRequest postRequest, MultipartFile multipartFile, Long postId, String token) {
+        UserInfo me = userService.me(token);
+        Post post = postRepository.findByPostId(postId).get();
+
+        String newThumbnail = "";
+
+        if (multipartFile.isEmpty() == false) {
+            UUID uuid = UUID.randomUUID();
+            newThumbnail = uuid + "_" + multipartFile.getOriginalFilename();
+
+            Path thumbnailFilePath = Paths.get(uploadUrl + newThumbnail);
+
+            try {
+                Files.write(thumbnailFilePath, multipartFile.getBytes());
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        post.update(postRequest.getTitle(), postRequest.getDescription(), newThumbnail, postRequest.getNeedUser());
+
+
+
+    }
 
 
     // 게시글 삭제
@@ -215,6 +241,7 @@ public class PostService {
     }
 
     // 로그인한 유저가 좋아요를 누른 게시물
+    @Transactional
     public List<PostInfo> getLikesPost(String token) {
         UserInfo me = userService.me(token);
         Optional<User> user = userRepository.findByEmail(me.getEmail());
@@ -254,6 +281,7 @@ public class PostService {
     }
 
     // 로그인한 유저가 조회한 게시물
+    @Transactional
     public List<PostInfo> getViewPost(String token) {
         UserInfo me = userService.me(token);
         Optional<User> user = userRepository.findByEmail(me.getEmail());

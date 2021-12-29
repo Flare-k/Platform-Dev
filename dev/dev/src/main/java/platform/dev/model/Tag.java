@@ -1,4 +1,4 @@
 package platform.dev.model;
 
-public class Tech {
+public class Tag {
 }
