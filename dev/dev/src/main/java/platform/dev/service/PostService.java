@@ -133,7 +133,7 @@ public class PostService {
 
     // 게시글 자세히보기 (로그인 유저와 작성자가 다르다면 조회수 증가)
     @Transactional
-    public PostInfo getPostDetail(Long postId, String token) {
+    public PostInfo postDetail(Long postId, String token) {
         Optional<Post> post = postRepository.findByPostId(postId);
 
         if (post.isEmpty()) {
@@ -197,13 +197,20 @@ public class PostService {
         UserInfo me = userService.me(token);
         Post post = postRepository.findByPostId(postId).get();
 
-        String newThumbnail = "";
+        // 작성 시 기존에 작성한 값들을 그대로 화면에 자동입력시켜놓을 것
+        // 바뀌면 바뀐대로 저장되고 안바뀌면 그대로 다시 저장될수있으니까
 
-        if (multipartFile.isEmpty() == false) {
+        String title = postRequest.getTitle();
+        String description =  postRequest.getDescription();
+
+        String thumbnail = post.getThumbnail();
+
+        // Thumbnail 파일을 바꾼다면..
+        if (multipartFile != null) {
             UUID uuid = UUID.randomUUID();
-            newThumbnail = uuid + "_" + multipartFile.getOriginalFilename();
+            thumbnail = uuid + "_" + multipartFile.getOriginalFilename();
 
-            Path thumbnailFilePath = Paths.get(uploadUrl + newThumbnail);
+            Path thumbnailFilePath = Paths.get(uploadUrl + thumbnail);
 
             try {
                 Files.write(thumbnailFilePath, multipartFile.getBytes());
@@ -213,10 +220,11 @@ public class PostService {
             }
         }
 
-        post.update(postRequest.getTitle(), postRequest.getDescription(), newThumbnail, postRequest.getNeedUser());
+        Long needUser = postRequest.getNeedUser();
 
+        //post.update(postRequest.getTitle(), postRequest.getDescription(), thumbnail, postRequest.getNeedUser());
 
-
+        postRepository.updatePost(title, description, thumbnail, needUser, post.getPostId());
     }
 
 

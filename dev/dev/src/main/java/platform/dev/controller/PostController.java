@@ -31,9 +31,10 @@ public class PostController {
     }
 
     // 게시글 자세히보기 (로그인 유저와 작성자가 다르다면 조회수 증가)
-    @GetMapping("/{postId}")
+    // 조회수가 업데이트된 리턴값을 Get에 전달
+    @PostMapping("/{postId}")
     public ResponseEntity<PostResponse> getPostInfo(@PathVariable("postId") Long postId, @RequestHeader(value = Util.AUTHORIZATION, required = false) String token) {
-        PostInfo postInfo = postService.getPostDetail(postId, token);
+        PostInfo postInfo = postService.postDetail(postId, token);
         PostResponse response = new PostResponse(HttpStatus.OK, Controller.FILE_VIEW_SUCCESS_MESSAGE, postInfo);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

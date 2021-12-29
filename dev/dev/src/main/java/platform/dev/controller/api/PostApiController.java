@@ -20,6 +20,7 @@ public class PostApiController {
     @Autowired
     private PostService postService;
 
+    // 게시물 업로드 (form-data)
     @PostMapping("/post/upload")
     public ResponseEntity<PostResponse> postUpload(PostRequest postRequest, @RequestParam("thumbnail") MultipartFile multipartFile, @RequestHeader(value = Util.AUTHORIZATION) String token) {
         PostInfo postInfo = postService.postUpload(postRequest, multipartFile, token);
@@ -48,6 +49,13 @@ public class PostApiController {
         PostPreviewResponse postPreviewResponse = new PostPreviewResponse();
         postPreviewResponse.setPostInfoList(postService.getViewPost(token));
         return postPreviewResponse;
+    }
+
+    // 게시글 수정 (form-data)
+    @PutMapping("/post/{postId}/update")
+    public String updatePost(PostRequest postRequest, MultipartFile multipartFile, @PathVariable("postId") Long postId, @RequestHeader(value = Util.AUTHORIZATION) String token) {
+        postService.updatePost(postRequest, multipartFile, postId, token);
+        return "update complete";
     }
     
     // 지원자 추가 시 needUser 1 감소 & 대기 리스트에 지원자 담기
