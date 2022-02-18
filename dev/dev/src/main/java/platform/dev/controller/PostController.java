@@ -40,6 +40,10 @@ public class PostController {
     }
 
     // 게시글 수정
+    @GetMapping("/update")
+    public void updatePost() {
+        // 수정 페이지 추가
+    }
 
     // 게시글 삭제
 }

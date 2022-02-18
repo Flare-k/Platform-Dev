@@ -51,7 +51,7 @@ public class PostApiController {
         return postPreviewResponse;
     }
 
-    // 게시글 수정 (form-data)
+    // 게시글 수정 (form-data) -> @RequestBody or @RequestHeader 어노테이션을 사용하지 않은 이유
     @PutMapping("/post/{postId}/update")
     public String updatePost(PostRequest postRequest, MultipartFile multipartFile, @PathVariable("postId") Long postId, @RequestHeader(value = Util.AUTHORIZATION) String token) {
         postService.updatePost(postRequest, multipartFile, postId, token);
@@ -60,5 +60,6 @@ public class PostApiController {
     
     // 지원자 추가 시 needUser 1 감소 & 대기 리스트에 지원자 담기
     // 참여 중, 참여 대기 중임을 나타내는 포스트 테이블도 필요
+
 
 }
